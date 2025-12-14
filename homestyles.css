@@ -1,0 +1,182 @@
+/* ===================== GLOBAL RESET ===================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html, body {
+    height: 100%;
+    scroll-behavior: smooth;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+body {
+    overflow-x: hidden;
+}
+
+/* ===================== NAVBAR ===================== */
+.navbar-custom {
+    background-color: transparent !important;
+    transition: background-color 0.4s, box-shadow 0.4s, padding 0.4s;
+    padding: 10px 20px;
+}
+.navbar-custom.scrolled {
+    background-color: white !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.navbar-custom .navbar-brand img {
+    height: 70px;
+    transition: height 0.4s;
+}
+.navbar-custom.scrolled .navbar-brand img {
+    height: 60px;
+}
+.navbar-custom .nav-link {
+    color: white !important;
+    transition: color 0.4s;
+}
+.navbar-custom.scrolled .nav-link {
+    color: black !important;
+}
+.navbar-custom .d-flex.align-items-center {
+    gap: 12px;
+}
+.navbar-custom .d-flex .btn, .navbar-custom .d-flex div {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+.navbar-custom .d-flex .btn {
+    transition: all 0.3s ease;
+}
+.navbar-custom .d-flex .btn:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+}
+
+/* ===================== CAROUSEL ===================== */
+#slider, .carousel, .carousel-inner, .carousel-item {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+.carousel-item.active img {
+    transform: scale(1.05);
+}
+
+/* ===================== HERO TEXT ===================== */
+.hero-text {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+.hero-text h1 {
+    font-size: 60px;
+}
+@media(max-width: 768px) { .hero-text h1 { font-size: 35px; } }
+@media(max-width: 576px) { .hero-text h1 { font-size: 24px; } }
+
+/* ===================== SECTIONS ===================== */
+section {
+    padding: 80px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+.welcome { background: linear-gradient(135deg, #a0e7e5, #b4f8c8); color: #000; }
+.restaurant { background: linear-gradient(135deg, #ffb4a2, #ffdac1); color: #333; }
+.activities { background: linear-gradient(135deg, #90b4f5, #b0c4f5); color: #333; }
+
+/* ===================== SECTION TITLES ===================== */
+.section-sub {
+    font-size: 14px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+h2.fw-bold {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #222;
+}
+
+/* ===================== CARDS ===================== */
+.row.g-4 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+}
+.col-md-4 { flex: 0 0 30%; }
+@media(max-width: 992px) { .col-md-4 { flex: 0 0 45%; } }
+@media(max-width: 576px) { .col-md-4 { flex: 0 0 90%; } }
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 450px;
+    max-width: 350px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0px 2px 15px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+    opacity: 0;
+    transform: translateY(20px);
+}
+.card.visible { opacity: 1; transform: translateY(0); }
+.card:hover { transform: translateY(-10px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+
+.package-img { width: 100%; height: 200px; object-fit: cover; border-radius: 15px; }
+.card h5 { font-weight: bold; }
+.card p { margin: 5px 0; }
+
+/* ===================== BUTTONS ===================== */
+.btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: linear-gradient(90deg, #0d6efd, #3a8dff); color: white; border: none; }
+.btn-primary:hover { background: linear-gradient(90deg, #0b5ed7, #1a70ff); }
+.btn-success { background-color: #198754; border: none; color: white; }
+.btn-success:hover { background-color: #146c43; }
+.btn-danger { background-color: #dc3545; border: none; color: white; }
+.btn-danger:hover { background-color: #bb2d3b; }
+
+/* ===================== FOOTER ===================== */
+footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    background: #fafafa;
+    margin-top: 50px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* ===================== RESPONSIVE CAROUSEL ===================== */
+@media(max-width: 768px) {
+    .carousel-caption { bottom: 15px !important; padding: 5px 10px; }
+    .carousel-caption h1 { font-size: 20px; line-height: 1.2; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; }
+}
+@media(max-width: 576px) {
+    .carousel-caption h1 { font-size: 16px; padding: 4px 6px; }
+}
