@@ -11,10 +11,10 @@
             <div class="col-md-4 mb-3">
                 <h6 class="fw-bold">Quick Links</h6>
                 <ul class="list-unstyled">
-                    <li><a href="home.php">Home</a></li>
-                    <li><a href="../booking/locations.php">Destinations</a></li>
-                    <li><a href="aboutus.php">About Us</a></li>
-                    <li><a href="contact.php">Contact</a></li>
+                    <li><a href="/Webby/Home/home.php">Home</a></li>
+                    <li><a href="/Webby/booking/locations.php">Destinations</a></li>
+                    <li><a href="/Webby/Home/aboutus.php">About Us</a></li>
+                    <li><a href="/Webby/Home/contact.php">Contact</a></li>
                 </ul>
             </div>
 
