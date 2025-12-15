@@ -32,12 +32,17 @@ if ($conn == null) {
    READ POST VALUES
    ========================= */
 $token = "";
+$redirect = "";
 
 /* read google token */
 if ($_POST["token"] != "") {
     $token = $_POST["token"];
 }
 
+/* read redirect page if provided */
+if ($_POST["redirect"] != "") {
+    $redirect = $_POST["redirect"];
+}
 
 /* token is required */
 if ($token == "") {
@@ -146,6 +151,16 @@ if ($userFound == 1) {
     $_SESSION["userID"] = $userID;
     $_SESSION["username"] = $dbUsername;
 
+    if ($redirect != "") {
+        echo "
+        <script>
+        alert('Welcome back! Logged in successfully.');
+        window.location='../booking/" . $redirect . "';
+        </script>
+        ";
+        exit();
+    }
+
     echo "
     <script>
     alert('Welcome back! Logged in successfully.');
@@ -190,6 +205,17 @@ if ($row2 != null) {
 /* set session */
 $_SESSION["userID"] = $newID;
 $_SESSION["username"] = $gName;
+
+/* redirect after registration */
+if ($redirect != "") {
+    echo "
+    <script>
+    alert('Google account registered & logged in successfully!');
+    window.location='../booking/" . $redirect . "';
+    </script>
+    ";
+    exit();
+}
 
 echo "
 <script>

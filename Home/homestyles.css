@@ -48,7 +48,7 @@ body {
     color: #000;
 }
 
-/* login / register / action buttons */
+/* login / register button */
 .nav-action-btn {
     background: transparent;
     color: #000;
@@ -73,17 +73,6 @@ body {
     font-weight: 600;
 }
 
-/* logout button variation */
-.logout-btn {
-    border: 1px solid #dc3545;
-    color: #dc3545;
-}
-
-.logout-btn:hover {
-    background: #dc3545;
-    color: #fff;
-}
-
 /* ===================== HERO ===================== */
 .hero-section {
     height: 450px;
@@ -106,7 +95,6 @@ body {
     font-weight: bold;
 }
 
-/* ===================== SECTIONS ===================== */
 .section-sub {
     color: #888;
     text-transform: uppercase;
@@ -118,7 +106,6 @@ body {
     max-width: 1200px !important;
 }
 
-/* ===================== CARDS ===================== */
 .package-img {
     width: 100%;
     height: 260px;
@@ -126,13 +113,41 @@ body {
     border-radius: 10px;
 }
 
-/* ===================== FOOTER ===================== */
 footer {
     background: #fafafa;
     margin-top: 50px;
 }
 
-/* ===================== GENERAL ===================== */
 button {
     cursor: pointer;
+}
+
+.logout-btn {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.logout-btn:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+.page-offset {
+    height: 60px;
+}
+
+#authModal .form-control {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+#authModal button {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 14px;
+}
+
+#authModal label {
+    font-size: 13px;
+    margin-bottom: 2px;
 }
