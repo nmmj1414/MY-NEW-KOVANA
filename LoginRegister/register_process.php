@@ -7,7 +7,7 @@ $email = "";
 $password = "";
 $exists = 0;
 
-/* READ INPUTS */
+// read form inputs
 if ($_POST["username_reg"] != "") {
     $username = $_POST["username_reg"];
 }
@@ -18,7 +18,7 @@ if ($_POST["pass_reg"] != "") {
     $password = $_POST["pass_reg"];
 }
 
-/* CHECK IF EMAIL EXISTS */
+// check if email is taken
 $sql1 = "SELECT id FROM Registered WHERE email = '$email'";
 $res1 = sqlsrv_query($conn, $sql1);
 
@@ -27,7 +27,7 @@ if ($row1 != null) {
     $exists = 1;
 }
 
-/* CHECK IF USERNAME EXISTS */
+// check if username is taken
 $sql2 = "SELECT id FROM Registered WHERE username = '$username'";
 $res2 = sqlsrv_query($conn, $sql2);
 
@@ -36,7 +36,7 @@ if ($row2 != null) {
     $exists = 1;
 }
 
-/* IF DUPLICATE */
+// stop if user already exists
 if ($exists == 1) {
     echo "
     <script>
@@ -47,15 +47,24 @@ if ($exists == 1) {
     exit();
 }
 
-/* INSERT NEW USER */
+// handle profile picture upload
+$filename = "default.jpg"; // default image if none uploaded
+if (array_key_exists("profile_pic", $_FILES)) {
+    if ($_FILES["profile_pic"]["name"] != "") {
+        $filename = basename($_FILES["profile_pic"]["name"]);
+        $target = "../profpics/" . $filename;
+        move_uploaded_file($_FILES["profile_pic"]["tmp_name"], $target);
+    }
+}
+
+// save new user to database
 $sql3 = "
 INSERT INTO Registered (username, email, password, profile_pic)
-VALUES ('$username', '$email', '$password', '')
+VALUES ('$username', '$email', '$password', '$filename')
 ";
-
 sqlsrv_query($conn, $sql3);
 
-/* FETCH ID */
+// get the new user's id
 $sql4 = "SELECT id FROM Registered WHERE email = '$email'";
 $res4 = sqlsrv_query($conn, $sql4);
 
@@ -65,15 +74,22 @@ if ($row4 != null) {
     $userID = $row4["id"];
 }
 
-/* SET SESSION */
+// start session immediately
 $_SESSION["userID"] = $userID;
 $_SESSION["username"] = $username;
+$_SESSION["profile_pic"] = $filename;
 
-/* REDIRECT */
+// check where to redirect
+$redirect = "../Home/home.php";
+if (array_key_exists("redirect", $_POST) && $_POST["redirect"] != "") {
+    $redirect = $_POST["redirect"];
+}
+
+// done
 echo "
 <script>
 alert('Registration successful!');
-window.location='../Home/home.php';
+window.location='$redirect';
 </script>
 ";
 ?>

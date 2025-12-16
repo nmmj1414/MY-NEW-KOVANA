@@ -3,12 +3,14 @@ session_start();
 include("../dbconnect/db.php");
 
 /* LOGIN CHECK */
-if (@$_SESSION["userID"] == "") {
-    echo "You must be logged in.";
-    exit();
+if (array_key_exists("userID", $_SESSION) == 0) {
+    $_SESSION["userID"] = "";
 }
 
-$userID = $_SESSION["userID"];
+if ($_SESSION["userID"] == "") {
+    header("Location: ../Home/home.php");
+    exit();
+}
 
 /* READ BOOKING ID */
 $bookingID = 0;
@@ -22,30 +24,44 @@ if ($bookingID == 0) {
     exit();
 }
 
-/* FETCH BOOKING DATA */
-$sql = "SELECT id, destination_name, price FROM bookings WHERE id = ?";
-$stmt = sqlsrv_query($conn, $sql, array($bookingID));
+/* FETCH CURRENT STATUS */
+$sql0 = "SELECT payment_status,destination_name,price FROM bookings WHERE id = ?";
+$res0 = sqlsrv_query($conn, $sql0, array($bookingID));
+$row0 = sqlsrv_fetch_array($res0, SQLSRV_FETCH_ASSOC);
 
-$row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-
-if ($row == null) {
+if ($row0 == null) {
     echo "Booking not found.";
     exit();
 }
 
-$price = $row["price"];
-$title = $row["destination_name"];
+$currentStatus = $row0["payment_status"];
 
-/* Convert to centavos */
+/* IF REFUND */
+if ($currentStatus == "Paid") {
+
+    $sqlRefund = "UPDATE bookings SET payment_status = 'pending' WHERE id = ?";
+    sqlsrv_query($conn, $sqlRefund, array($bookingID));
+
+    header("Location: bookedplaces.php");
+    exit();
+}
+
+/* =======================
+   PAY NOW (DEMO PAYMONGO)
+   ======================= */
+
+$title = $row0["destination_name"];
+$price = $row0["price"];
 $amount = $price * 100;
+
+/* UPDATE STATUS FIRST (DEMO) */
+$sqlPay = "UPDATE bookings SET payment_status = 'Paid' WHERE id = ?";
+sqlsrv_query($conn, $sqlPay, array($bookingID));
 
 /* PAYMONGO KEY */
 $secretKey = "sk_test_aojcRtZRJuiea8sCvoGBMXbw";
 
-/* ============================
-   BUILD REQUEST PAYLOAD MANUALLY
-   ============================ */
-
+/* BUILD REQUEST */
 $arr = array();
 $arr2 = array();
 $arr3 = array();
@@ -59,12 +75,8 @@ $arr["data"] = $arr2;
 
 $jsonBody = json_encode($arr);
 
-/* ============================
-   SEND CURL REQUEST
-   ============================ */
-
+/* CURL */
 $ch = curl_init();
-
 curl_setopt($ch, CURLOPT_URL, "https://api.paymongo.com/v1/links");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
@@ -72,19 +84,13 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
 $headers = array();
 $headers[0] = "Content-Type: application/json";
 $headers[1] = "Authorization: Basic " . base64_encode($secretKey . ":");
-
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 $result = curl_exec($ch);
-
 curl_close($ch);
 
-/* ============================
-   READ RESPONSE
-   ============================ */
-
+/* READ RESPONSE */
 $response = json_decode($result, true);
-
 $payURL = "";
 
 if ($response != null) {
@@ -102,7 +108,5 @@ if ($payURL != "") {
     exit();
 }
 
-/* Failure */
-echo "Failed to generate payment link.";
-
-?>
+header("Location: bookedplaces.php");
+exit();

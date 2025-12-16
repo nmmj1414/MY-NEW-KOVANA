@@ -1,9 +1,7 @@
 <?php
 session_start();
 
-/* =========================
-   LOAD DATABASE CONNECTION
-   ========================= */
+// load database connection
 $db_file = "../dbconnect/db.php";
 if (file_exists($db_file)) {
     include($db_file);
@@ -17,7 +15,7 @@ if (file_exists($db_file)) {
     exit();
 }
 
-/* check if db connection exists */
+// check if db connection works
 if ($conn == null) {
     echo "
     <script>
@@ -28,23 +26,19 @@ if ($conn == null) {
     exit();
 }
 
-/* =========================
-   READ POST VALUES
-   ========================= */
+// read values sent from the form
 $token = "";
 $redirect = "";
 
-/* read google token */
-if ($_POST["token"] != "") {
+if (array_key_exists("token", $_POST)) {
     $token = $_POST["token"];
 }
 
-/* read redirect page if provided */
-if ($_POST["redirect"] != "") {
+if (array_key_exists("redirect", $_POST)) {
     $redirect = $_POST["redirect"];
 }
 
-/* token is required */
+// token is needed to proceed
 if ($token == "") {
     echo "
     <script>
@@ -55,28 +49,20 @@ if ($token == "") {
     exit();
 }
 
-/* =========================
-   DECODE GOOGLE JWT PAYLOAD
-   ========================= */
-
-/* split token */
+// decode the google token (jwt)
+// we do this manually to avoid installing extra libraries
 $parts = explode(".", $token);
 $payload = "";
 
-/* extract payload part */
-if ($parts != null) {
-    if (count($parts) > 1) {
-        if ($parts[1] != "") {
-            $payload = $parts[1];
-        }
-    }
+if ($parts != null && count($parts) > 1) {
+    $payload = $parts[1];
 }
 
-/* replace base64 characters */
+// replace special characters for base64 decode
 $payload = str_replace("-", "+", $payload);
 $payload = str_replace("_", "/", $payload);
 
-/* fix padding */
+// fix padding issues
 $length = strlen($payload);
 $extra = $length % 4;
 
@@ -88,33 +74,28 @@ if ($extra == 3) {
     $payload = $payload . "=";
 }
 
-/* decode payload */
+// decode the json data
 $json = base64_decode($payload);
 $data = json_decode($json, true);
 
-/* =========================
-   READ GOOGLE USER DATA
-   ========================= */
+// get user info from the decoded data
 $gEmail = "";
 $gName = "";
 $gPic = "";
 
 if ($data != null) {
-
-    if ($data["email"] != "") {
+    if (array_key_exists("email", $data)) {
         $gEmail = $data["email"];
     }
-
-    if ($data["name"] != "") {
+    if (array_key_exists("name", $data)) {
         $gName = $data["name"];
     }
-
-    if ($data["picture"] != "") {
+    if (array_key_exists("picture", $data)) {
         $gPic = $data["picture"];
     }
 }
 
-/* email is required */
+// email is required for login
 if ($gEmail == "") {
     echo "
     <script>
@@ -125,9 +106,7 @@ if ($gEmail == "") {
     exit();
 }
 
-/* =========================
-   CHECK IF USER EXISTS
-   ========================= */
+// check if this email is already registered
 $sql_check = "SELECT id, username FROM Registered WHERE email = '$gEmail'";
 $res = sqlsrv_query($conn, $sql_check);
 
@@ -143,19 +122,29 @@ if ($row != null) {
     $dbUsername = $row["username"];
 }
 
-/* =========================
-   LOGIN EXISTING USER
-   ========================= */
+// login the existing user
 if ($userFound == 1) {
+
+    // get the user's profile pic
+    $sql_pic = "SELECT profile_pic FROM Registered WHERE id = $userID";
+    $res_pic = sqlsrv_query($conn, $sql_pic);
+    $row_pic = sqlsrv_fetch_array($res_pic);
+    $dbPic = "";
+    
+    if ($row_pic != null && array_key_exists("profile_pic", $row_pic)) {
+        $dbPic = $row_pic["profile_pic"];
+    }
 
     $_SESSION["userID"] = $userID;
     $_SESSION["username"] = $dbUsername;
+    $_SESSION["profile_pic"] = $dbPic;
 
+    // go back to the page we came from
     if ($redirect != "") {
         echo "
         <script>
         alert('Welcome back! Logged in successfully.');
-        window.location='../booking/" . $redirect . "';
+        window.location='" . $redirect . "';
         </script>
         ";
         exit();
@@ -170,11 +159,8 @@ if ($userFound == 1) {
     exit();
 }
 
-/* =========================
-   REGISTER NEW GOOGLE USER
-   ========================= */
-
-/* generate simple random password */
+// register a new user if not found
+// create a random password since they use google login
 $chars = "ABCDEF123456";
 $randpass = "";
 $len = strlen($chars);
@@ -184,14 +170,14 @@ for ($i = 0; $i < 10; $i++) {
     $randpass = $randpass . $chars[$pos];
 }
 
-/* insert new user */
+// save the new user
 $sql_ins = "
 INSERT INTO Registered (username, email, password, profile_pic)
 VALUES ('$gName', '$gEmail', '$randpass', '$gPic')
 ";
 sqlsrv_query($conn, $sql_ins);
 
-/* get newly created user id */
+// get the new user's id
 $sql_get = "SELECT id FROM Registered WHERE email = '$gEmail'";
 $res2 = sqlsrv_query($conn, $sql_get);
 
@@ -202,16 +188,17 @@ if ($row2 != null) {
     $newID = $row2["id"];
 }
 
-/* set session */
+// start the session
 $_SESSION["userID"] = $newID;
 $_SESSION["username"] = $gName;
+$_SESSION["profile_pic"] = $gPic;
 
-/* redirect after registration */
+// redirect
 if ($redirect != "") {
     echo "
     <script>
     alert('Google account registered & logged in successfully!');
-    window.location='../booking/" . $redirect . "';
+    window.location='" . $redirect . "';
     </script>
     ";
     exit();
@@ -224,5 +211,4 @@ window.location='../Home/home.php';
 </script>
 ";
 exit();
-
 ?>

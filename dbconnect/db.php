@@ -19,5 +19,3 @@ if ($conn == null) {
     echo "<script>alert('Database connection failed. Please check db.php settings.');</script>";
 }
 ?>
-
-

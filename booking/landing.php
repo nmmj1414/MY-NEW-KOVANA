@@ -2,7 +2,7 @@
 session_start();
 include("locations_data.php");
 
-/* SESSION SAFE */
+// set default session variables
 if (array_key_exists("username", $_SESSION) == 0) {
     $_SESSION["username"] = "";
 }
@@ -17,17 +17,17 @@ if ($_SESSION["username"] != "") {
     $displayName = $_SESSION["username"];
 }
 
-/* READ POST */
+// read the data sent from the previous page
 $type = $_POST["type"];
 $index = $_POST["index"];
 
-/* DEFAULT */
+// default values
 $name = "";
 $place = "";
 $price = "";
 $img = "";
 
-/* DATA SOURCE */
+// get the correct data based on the type (restaurant or activity)
 if ($type == "resto") {
     $name = $resto[$index][0];
     $place = $resto[$index][1];
@@ -42,10 +42,11 @@ if ($type == "act") {
     $img = $act[$index][3];
 }
 
-/* WEATHER */
+// get weather data from openweathermap
 $weatherKey = "5e4fb336abdd12d34698f810a87c3ecd";
 $weatherCity = $place;
 
+// fix city name if it has multiple locations (e.g. "Manila / Cebu")
 if (strpos($weatherCity, "/") !== false) {
     $parts = explode("/", $weatherCity);
     $weatherCity = trim($parts[0]);
@@ -64,6 +65,7 @@ $temperature = "";
 $condition = "";
 $icon = "";
 
+// parse weather data if available
 if ($weatherData != null && array_key_exists("main", $weatherData)) {
     $temperature = $weatherData["main"]["temp"];
     if (array_key_exists("weather", $weatherData)) {
@@ -89,7 +91,7 @@ if ($weatherData != null && array_key_exists("main", $weatherData)) {
         <div class="container">
 
             <a class="navbar-brand site-logo" href="../Home/home.php">KOVANA</a>
-
+            <button class="nav-action-btn toggle ms-2" onclick="toggleTheme()">🌙</button>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -108,13 +110,27 @@ if ($weatherData != null && array_key_exists("main", $weatherData)) {
                     </button>
                 <?php } else { ?>
                     <div class="d-flex align-items-center">
+                        <?php
+                        $picDisplay = "../images/default.jpg";
+                        if (array_key_exists("profile_pic", $_SESSION) && $_SESSION["profile_pic"] != "") {
+                            $pic = $_SESSION["profile_pic"];
+                            if (strpos($pic, "http") === 0) {
+                                $picDisplay = $pic;
+                            } else {
+                                $picDisplay = "../profpics/" . $pic;
+                            }
+                        }
+                        ?>
+                        <img src="<?php echo $picDisplay; ?>"
+                            style="width:35px; height:35px; border-radius:50%; object-fit:cover;" class="me-2">
                         <div class="nav-user-box me-2"><?php echo $displayName; ?></div>
 
-                        <a href="bookedplaces.php" class="nav-action-btn ms-2">
+                        <a href="bookedplaces.php" class="nav-action-btn booked-btn ms-2">
                             Your Booked Places
                         </a>
 
                         <form method="POST" action="../LoginRegister/logout.php">
+                            <input type="hidden" name="redirect" value="../Home/home.php">
                             <button class="nav-action-btn logout-btn ms-2">Logout</button>
                         </form>
                     </div>
@@ -187,31 +203,95 @@ if ($weatherData != null && array_key_exists("main", $weatherData)) {
 
     <!-- LOGIN / REGISTER MODAL -->
     <div class="modal fade" id="authModal">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content p-4" style="border-radius:15px;">
+
                 <h3 class="fw-bold text-center mb-4">Welcome to KOVANA</h3>
 
-                <form method="POST" action="../LoginRegister/login_process.php">
-                    <input type="text" name="email_login" class="form-control mb-2" placeholder="Email">
-                    <input type="password" name="pass_login" class="form-control mb-3" placeholder="Password">
-                    <button class="btn btn-primary w-100">Login</button>
-                </form>
+                <div class="row">
+                    <div class="col-md-6" style="border-right: 1px solid #dee2e6;">
+                        <form method="POST" action="../LoginRegister/login_process.php" class="mb-4">
+                            <input type="hidden" name="redirect" value="../booking/landing.php">
+                            <h5 class="fw-bold mb-2">Login</h5>
 
-                <hr>
+                            <label>Email</label>
+                            <input type="text" name="email_login" class="form-control mb-1">
 
-                <form method="POST" action="../LoginRegister/register_process.php">
-                    <input type="text" name="username_reg" class="form-control mb-2" placeholder="Username">
-                    <input type="text" name="email_reg" class="form-control mb-2" placeholder="Email">
-                    <input type="password" name="pass_reg" class="form-control mb-3" placeholder="Password">
-                    <button class="btn btn-success w-100">Register</button>
-                </form>
+                            <label>Password</label>
+                            <input type="password" name="pass_login" class="form-control mb-2">
+
+                            <button class="btn btn-primary w-100 py-1">Login</button>
+                        </form>
+                    </div>
+
+                    <div class="col-md-6">
+                        <form method="POST" action="../LoginRegister/register_process.php" enctype="multipart/form-data">
+                            <input type="hidden" name="redirect" value="../booking/landing.php">
+                            <h5 class="fw-bold mb-1">Create New Account</h5>
+
+                            <label>Username</label>
+                            <input type="text" name="username_reg" class="form-control mb-1">
+
+                            <label>Email</label>
+                            <input type="text" name="email_reg" class="form-control mb-1">
+
+                            <label>Password</label>
+                            <input type="password" name="pass_reg" class="form-control mb-2">
+
+                            <label>Profile Picture</label>
+                            <input type="file" name="profile_pic" class="form-control mb-2" accept="image/*">
+
+                            <button class="btn btn-success w-100 py-1">Register</button>
+                        </form>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="text-center fw-bold mb-2">OR</div>
+
+                <div class="google-wrap text-center">
+                    <div class="g_id_signin d-inline-block" data-type="standard" data-size="large" data-theme="outline"
+                        data-text="continue_with" data-shape="rect" data-width="280"></div>
+                </div>
+
+                <div id="g_id_onload"
+                    data-client_id="397070442652-a36b7hmfeah7sag869fsrgqdcpkvcrs6.apps.googleusercontent.com"
+                    data-context="signin" data-ux_mode="popup" data-callback="handleGoogle" data-auto_prompt="false">
+                </div>
+
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+
+    <script>
+        function handleGoogle(response) {
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "../LoginRegister/google_login.php";
+
+            var t = document.createElement("input");
+            t.type = "hidden";
+            t.name = "token";
+            t.value = response.credential;
+
+            var r = document.createElement("input");
+            r.type = "hidden";
+            r.name = "redirect";
+            r.value = "../Home/home.php";
+
+            form.appendChild(t);
+            form.appendChild(r);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
     <?php include("../Home/footer.php"); ?>
 
 </body>
 
 </html>
+```

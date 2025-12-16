@@ -2,12 +2,12 @@
 session_start();
 include("../dbconnect/db.php");
 
-/* default values to avoid undefined usage */
+// set defaults
 $email = "";
 $password = "";
 $redirect = "";
 
-/* read login inputs */
+// read login inputs
 if ($_POST["email_login"] != "") {
     $email = $_POST["email_login"];
 }
@@ -16,51 +16,55 @@ if ($_POST["pass_login"] != "") {
     $password = $_POST["pass_login"];
 }
 
-/* read redirect page if provided */
+// check if we need to redirect somewhere specific
 if ($_POST["redirect"] != "") {
     $redirect = $_POST["redirect"];
 }
 
-/* fetch user by email */
-$sql = "SELECT id, username, password FROM Registered WHERE email = '$email'";
+// find user in the database
+$sql = "SELECT id, username, password, profile_pic FROM Registered WHERE email = '$email'";
 $res = sqlsrv_query($conn, $sql);
 
 $found = 0;
 $dbPass = "";
 $dbID = 0;
 $dbUser = "";
+$dbPic = "";
 
 $row = sqlsrv_fetch_array($res);
 
-/* check if user exists */
 if ($row != null) {
     $found = 1;
     $dbPass = $row["password"];
     $dbID = $row["id"];
     $dbUser = $row["username"];
+    if (array_key_exists("profile_pic", $row)) {
+        $dbPic = $row["profile_pic"];
+    }
 }
 
-/* VALIDATE LOGIN */
+// validate the password
 if ($found == 1) {
 
     if ($password == $dbPass) {
 
-        /* store login session values */
+        // save session info
         $_SESSION["userID"] = $dbID;
         $_SESSION["username"] = $dbUser;
+        $_SESSION["profile_pic"] = $dbPic;
 
-        /* redirect back to calling page if provided */
+        // redirect back to previous page
         if ($redirect != "") {
             echo "
             <script>
             alert('Login successful!');
-            window.location='../booking/" . $redirect . "';
+            window.location='" . $redirect . "';
             </script>
             ";
             exit();
         }
 
-        /* fallback redirect */
+        // default redirect to home
         echo "
         <script>
         alert('Login successful!');
@@ -71,7 +75,7 @@ if ($found == 1) {
     }
 }
 
-/* FAILED LOGIN */
+// if login fails
 echo "
 <script>
 alert('Incorrect email or password.');

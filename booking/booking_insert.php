@@ -4,8 +4,10 @@ include("../dbconnect/db.php");
 
 /* READ USER ID IF LOGGED IN */
 $user_id = 0;
-if (@$_SESSION["userID"] != "") {
-    $user_id = $_SESSION["userID"];
+if (array_key_exists("userID", $_SESSION) != 0) {
+    if ($_SESSION["userID"] != "") {
+        $user_id = $_SESSION["userID"];
+    }
 }
 
 /* READ FORM INPUTS */
@@ -54,6 +56,23 @@ $destination_name = $place;
 $selected_date = $date;
 $message = $note;
 $img_file = $img;
+
+$img_file = $img;
+
+/* DOUBLE BOOKING CHECK (SIMPLE) */
+$sqlCheck = "SELECT id FROM bookings WHERE user_id = ? AND destination_name = ? AND selected_date = ?";
+$resCheck = sqlsrv_query($conn, $sqlCheck, array($user_id, $destination_name, $selected_date));
+$rowCheck = sqlsrv_fetch_array($resCheck);
+
+if ($rowCheck != null) {
+    echo "
+    <script>
+    alert('You have already booked this destination for this date.');
+    window.location='../booking/locations.php';
+    </script>
+    ";
+    exit();
+}
 
 /* INSERT */
 $sql = "
