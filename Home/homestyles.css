@@ -106,17 +106,17 @@ body {
 
 .hero-text .outline-fill1 {
     position: relative;
-    top: -100px; /* default for large screens */
+    top: -100px;
 }
 
 .hero-text .outline-fill2 {
     position: relative;
-    top: -55px; /* default for large screens */
+    top: -55px; 
 }
 
 .hero-text .outline-fill3 {
     position: relative;
-    top: -58px; /* default for large screens */
+    top: -58px;
 }
 
 .section-sub {

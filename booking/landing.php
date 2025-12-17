@@ -73,6 +73,8 @@ if ($weatherData != null && array_key_exists("main", $weatherData)) {
         $icon = $weatherData["weather"][0]["icon"];
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -175,17 +177,17 @@ if ($weatherData != null && array_key_exists("main", $weatherData)) {
 
                         <div class="mb-3">
                             <label class="fw-bold">Full Name</label>
-                            <input type="text" name="fullname" class="form-control">
+                            <input type="text" name="fullname" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="fw-bold">Email</label>
-                            <input type="email" name="email" class="form-control">
+                            <input type="email" name="email" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="fw-bold">Date</label>
-                            <input type="date" name="date" class="form-control">
+                            <input type="date" name="date" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
